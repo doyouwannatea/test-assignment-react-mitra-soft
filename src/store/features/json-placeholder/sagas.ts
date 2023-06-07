@@ -50,7 +50,7 @@ function* fetchUserPosts(userId: number) {
     );
     yield put(setPostList({ data: userPosts, totalCount: userPosts.length }));
   } catch (error) {
-    yield cancel();
+    yield put(setError(String(error)));
   }
 }
 
@@ -62,7 +62,7 @@ function* fetchUserData(userId: number) {
     );
     yield put(setViewedUser(user));
   } catch (error) {
-    yield cancel();
+    yield put(setError(String(error)));
   }
 }
 
@@ -74,8 +74,6 @@ export function* getUserDataWorker(action: ReturnType<typeof getUserData>) {
       call(fetchUserPosts, action.payload),
       call(fetchUserData, action.payload),
     ]);
-  } catch (error) {
-    yield put(setError(String(error)));
   } finally {
     yield put(setLoading(false));
   }

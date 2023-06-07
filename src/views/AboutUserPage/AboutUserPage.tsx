@@ -11,16 +11,18 @@ import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { generatePostListPath } from '@/router/routeList';
 import UserCard from '@/components/UserCard';
+import ErrorStub from '@/components/ErrorStub';
 
 function AboutUserPage() {
   const dispatch = useDispatch();
   const { userId } = useAboutUserPageParams();
   const {
-    loading,
     commentMap,
     viewedUser,
-    loadingComments,
     allPosts: { data: postList },
+    loading,
+    loadingComments,
+    error,
   } = useAppSelector(({ jsonPlaceholderReducer }) => jsonPlaceholderReducer);
   useDispatchOnMount(getUserData(Number(userId)));
 
@@ -29,6 +31,7 @@ function AboutUserPage() {
   }
 
   if (loading) return <Spinner />;
+  if (error) return <ErrorStub error={error} />;
   if (!viewedUser) return <p>Пользователь не найден</p>;
 
   return (

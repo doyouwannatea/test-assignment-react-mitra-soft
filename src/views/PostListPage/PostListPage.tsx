@@ -13,26 +13,19 @@ import {
 } from '@/models/json-placeholder-api';
 import { usePostListPageParams } from './usePostListPageParams';
 import { usePagination } from '@/hooks/usePagination';
+import ErrorStub from '@/components/ErrorStub';
 
 function PostListPage() {
   const PAGINATION_LIMIT = 7;
   const dispatch = useAppDispatch();
 
-  const allPosts = useAppSelector(
-    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.allPosts.data || [],
-  );
-  const totalPosts = useAppSelector(
-    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.allPosts.totalCount,
-  );
-  const commentMap = useAppSelector(
-    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.commentMap,
-  );
-  const isLoading = useAppSelector(
-    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.loading,
-  );
-  const loadingComments = useAppSelector(
-    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.loadingComments,
-  );
+  const {
+    commentMap,
+    loadingComments,
+    allPosts: { data: allPosts, totalCount: totalPosts },
+    loading,
+    error,
+  } = useAppSelector(({ jsonPlaceholderReducer }) => jsonPlaceholderReducer);
 
   const { changeParams, params } = usePostListPageParams();
   useDispatchOnMount(
@@ -85,6 +78,8 @@ function PostListPage() {
     changeParams({ page: 1, sort });
   }
 
+  if (error) return <ErrorStub error={error} />;
+
   return (
     <section>
       <InputGroup className='mb-1'>
@@ -105,12 +100,12 @@ function PostListPage() {
         ))}
       </Form.Select>
 
-      {isLoading && allPosts.length === 0 ? (
+      {loading ? (
         <Spinner />
       ) : (
         <>
           <PostList
-            postList={allPosts}
+            postList={allPosts || []}
             commentMap={commentMap}
             loadingComments={loadingComments}
             openPostCommentList={(postId) => openPostCommentList(postId)}
