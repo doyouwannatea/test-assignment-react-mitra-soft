@@ -1,4 +1,4 @@
-import { takeEvery, takeLeading } from 'redux-saga/effects';
+import { takeEvery, takeLatest } from 'redux-saga/effects';
 import {
   JsonPlaceholderSagaAction,
   getAllPostsWorker,
@@ -6,7 +6,7 @@ import {
 } from '../features/json-placeholder/sagas';
 
 function* rootSaga() {
-  yield takeLeading(JsonPlaceholderSagaAction.GetAllPosts, getAllPostsWorker);
+  yield takeLatest(JsonPlaceholderSagaAction.GetAllPosts, getAllPostsWorker);
   yield takeEvery(
     JsonPlaceholderSagaAction.GetPostComments,
     getPostCommentsWorker,
