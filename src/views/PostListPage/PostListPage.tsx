@@ -87,7 +87,7 @@ function PostListPage() {
 
   return (
     <section>
-      <InputGroup className='mb-3'>
+      <InputGroup className='mb-1'>
         <Form.Control
           placeholder='Введите заголовок статьи'
           value={params.title}
@@ -97,7 +97,7 @@ function PostListPage() {
           X
         </Button>
       </InputGroup>
-      <Form.Select onChange={onSortChange} value={params.sort}>
+      <Form.Select className='mb-3' onChange={onSortChange} value={params.sort}>
         {postSortVariants.map((sortVariant) => (
           <option key={sortVariant} value={sortVariant}>
             {PostSortVariantsText[sortVariant]}

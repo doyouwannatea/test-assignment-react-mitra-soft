@@ -7,7 +7,7 @@ interface Props {
 function BaseComment({ comment }: Props) {
   return (
     <small>
-      <strong>{comment.email}</strong> - {comment.body}
+      <strong>{comment.email}</strong> • {comment.body}
     </small>
   );
 }

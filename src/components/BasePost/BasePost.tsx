@@ -1,9 +1,14 @@
 import { Comment, Post } from '@/models/json-placeholder-api';
 import { generateAboutUserPath } from '@/router/routeList';
 import { useState } from 'react';
-import { Button, Spinner } from 'react-bootstrap';
+import { classNamesFunc } from 'classnames-generics';
+import { Button, Card, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import CommentList from '../CommentList';
+
+import styles from './BasePost.module.scss';
+
+const classNames = classNamesFunc<keyof typeof styles>();
 
 interface Props {
   post: Post;
@@ -23,6 +28,7 @@ function BasePost({
   const [commentListOpened, setСommentListOpened] = useState(false);
 
   function openCommentList() {
+    if (isLoadingComments) return;
     setСommentListOpened(true);
     if (onOpenCommentList) onOpenCommentList();
   }
@@ -33,22 +39,35 @@ function BasePost({
   }
 
   return (
-    <section>
-      <Link to={generateAboutUserPath(String(post.userId))}>
-        🙍‍♂️ - {post.userId}
-      </Link>
-      <p>{post.title}</p>
-      <p>{post.body}</p>
-      <Button onClick={commentListOpened ? closeCommentList : openCommentList}>
-        {commentListOpened ? 'скрыть' : 'окрыть'} комментарии
-      </Button>
-      {isLoadingComments ? (
-        <Spinner size='sm' />
-      ) : (
-        commentListOpened &&
-        commentList && <CommentList commentList={commentList} />
-      )}
-    </section>
+    <Card>
+      <Card.Body>
+        <Card.Title>
+          <Link
+            className={classNames(styles.link)}
+            to={generateAboutUserPath(String(post.userId))}
+          >
+            🙍‍♂️ {post.title}
+          </Link>
+        </Card.Title>
+        <Card.Text>{post.body}</Card.Text>
+        <Button
+          disabled={isLoadingComments}
+          variant='link'
+          onClick={commentListOpened ? closeCommentList : openCommentList}
+        >
+          {isLoadingComments ? (
+            <Spinner size='sm' />
+          ) : commentListOpened ? (
+            'скрыть комментарии'
+          ) : (
+            'окрыть комментарии'
+          )}{' '}
+        </Button>
+        {!isLoadingComments && commentListOpened && commentList && (
+          <CommentList commentList={commentList} />
+        )}
+      </Card.Body>
+    </Card>
   );
 }
 

@@ -7,7 +7,7 @@ interface Props {
 
 function CommentList({ commentList }: Props) {
   return (
-    <ul>
+    <ul className='list-inline'>
       {commentList.map((comment) => (
         <li key={comment.id}>
           <BaseComment comment={comment} />

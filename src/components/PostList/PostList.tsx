@@ -1,5 +1,6 @@
 import { Comment, Post } from '@/models/json-placeholder-api';
 import BasePost from '../BasePost';
+import { Stack } from 'react-bootstrap';
 
 interface Props {
   postList: Post[];
@@ -15,7 +16,7 @@ function PostList({
   openPostCommentList,
 }: Props) {
   return (
-    <ul>
+    <Stack as='ul' gap={1} className='list-inline'>
       {postList.map((post) => (
         <li key={post.id}>
           <BasePost
@@ -28,7 +29,7 @@ function PostList({
           />
         </li>
       ))}
-    </ul>
+    </Stack>
   );
 }
 export default PostList;
