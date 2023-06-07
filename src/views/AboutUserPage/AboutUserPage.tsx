@@ -10,6 +10,7 @@ import PostList from '@/components/PostList';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { generatePostListPath } from '@/router/routeList';
+import UserCard from '@/components/UserCard';
 
 function AboutUserPage() {
   const dispatch = useDispatch();
@@ -32,16 +33,22 @@ function AboutUserPage() {
 
   return (
     <section>
-      <Link to={generatePostListPath()}>{'<- назад'}</Link>
-      <p>{viewedUser.name}</p>
-      <p>{viewedUser.email}</p>
-      <p>{viewedUser.phone}</p>
-      <PostList
-        openPostCommentList={onOpenPostCommentList}
-        commentMap={commentMap}
-        loadingComments={loadingComments}
-        postList={postList || []}
-      />
+      <Link className='mt-3 d-block' to={generatePostListPath()}>
+        &larr; К списку постов
+      </Link>
+      <section>
+        <h2 className='mt-4'>Пользователь</h2>
+        <UserCard user={viewedUser} />
+      </section>
+      <section>
+        <h2 className='mt-4'>Посты пользователя</h2>
+        <PostList
+          openPostCommentList={onOpenPostCommentList}
+          commentMap={commentMap}
+          loadingComments={loadingComments}
+          postList={postList || []}
+        />
+      </section>
     </section>
   );
 }
