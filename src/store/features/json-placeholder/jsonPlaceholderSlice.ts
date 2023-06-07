@@ -1,13 +1,21 @@
-import { Todo } from '@/models/json-placeholder-api';
+import { Post, Comment } from '@/models/json-placeholder-api';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface State {
-  todo?: Todo;
+  allPosts?: Post[];
+  commentMap: Record<number, Comment[]>;
+  loadingComments: number[];
+  loading: boolean;
+  error: string;
 }
 
 const initialState: State = {
-  todo: undefined,
+  allPosts: undefined,
+  commentMap: {},
+  loadingComments: [],
+  loading: false,
+  error: '',
 };
 
 const sliceName = 'json-placeholder';
@@ -15,12 +23,48 @@ export const jsonPlaceholderSlice = createSlice({
   name: sliceName,
   initialState,
   reducers: {
-    setTodo: (state, action: PayloadAction<Todo>) => {
-      state.todo = action.payload;
+    setPostList: (state, action: PayloadAction<Post[]>) => {
+      state.allPosts = action.payload;
+    },
+    setPostComments: (
+      state,
+      action: PayloadAction<{ postId: number; commentList: Comment[] }>,
+    ) => {
+      const { postId, commentList } = action.payload;
+      state.commentMap[postId] = commentList;
+    },
+    setCommentsLoading: (
+      state,
+      action: PayloadAction<{ postId: number; value: boolean }>,
+    ) => {
+      const { postId, value } = action.payload;
+      // true: добавляем загрузку
+      if (value) {
+        state.loadingComments.push(postId);
+        return;
+      }
+      // false: убираем загрузку
+      const index = state.loadingComments.findIndex((post) => post === postId);
+      state.loadingComments = [
+        ...state.loadingComments.slice(0, index),
+        ...state.loadingComments.slice(index + 1),
+      ];
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
     },
   },
 });
 
-export const { setTodo } = jsonPlaceholderSlice.actions;
+export const {
+  setError,
+  setPostList,
+  setLoading,
+  setPostComments,
+  setCommentsLoading,
+} = jsonPlaceholderSlice.actions;
 
 export default jsonPlaceholderSlice.reducer;
