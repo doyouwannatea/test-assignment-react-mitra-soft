@@ -102,6 +102,8 @@ function PostListPage() {
 
       {loading ? (
         <Spinner />
+      ) : allPosts?.length === 0 ? (
+        'Посты не найдены'
       ) : (
         <>
           <PostList
