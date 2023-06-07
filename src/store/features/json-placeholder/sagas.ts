@@ -82,7 +82,6 @@ export function* getUserDataWorker(action: ReturnType<typeof getUserData>) {
 }
 
 export function* getAllPostsWorker(action: ReturnType<typeof getAllPosts>) {
-  console.log(action.payload);
   try {
     yield put(setPostList({ data: undefined, totalCount: 0 }));
     yield put(setLoading(true));
