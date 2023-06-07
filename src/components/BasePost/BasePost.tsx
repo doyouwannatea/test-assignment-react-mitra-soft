@@ -34,7 +34,9 @@ function BasePost({
 
   return (
     <section>
-      <Link to={generateAboutUserPath(String(post.userId))}>🙍‍♂️</Link>
+      <Link to={generateAboutUserPath(String(post.userId))}>
+        🙍‍♂️ - {post.userId}
+      </Link>
       <p>{post.title}</p>
       <p>{post.body}</p>
       <Button onClick={commentListOpened ? closeCommentList : openCommentList}>

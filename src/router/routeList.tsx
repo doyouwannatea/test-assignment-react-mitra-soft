@@ -11,8 +11,8 @@ import {
 export const enum RoutePath {
   Home = '/',
   PostList = '/:page/:sort/:title?',
-  AboutMe = 'about',
-  AboutUser = 'about/:userId',
+  AboutMe = '/about',
+  AboutUser = '/about/:userId',
 }
 
 export const generateHomePath = () => generatePath(RoutePath.Home);

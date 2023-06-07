@@ -2,6 +2,7 @@ import {
   Comment,
   JsonPlaceholderApiOptions,
   Post,
+  User,
 } from '@/models/json-placeholder-api';
 import { httpClient } from '../httpClient';
 import { JsonPlaceholderApiSearchParams } from './JsonPlaceholderApiSearchParams';
@@ -24,6 +25,11 @@ export class JsonPlaceholderApiService {
   async getUserPosts(userId: number): Promise<Post[]> {
     const responce = await httpClient.get<Post[]>(`posts?userId=${userId}`);
     return responce.data;
+  }
+
+  async getUserData(userId: number): Promise<User | undefined> {
+    const responce = await httpClient.get<User[]>(`users?id=${userId}`);
+    return responce.data[0];
   }
 
   async getPostComments(postId: number): Promise<Comment[]> {

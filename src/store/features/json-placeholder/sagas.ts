@@ -1,9 +1,10 @@
-import { call, cancel, delay, put, select } from 'redux-saga/effects';
+import { all, call, cancel, delay, put, select } from 'redux-saga/effects';
 import { createAction } from '@reduxjs/toolkit';
 import {
   Comment,
   JsonPlaceholderApiOptions,
   Post,
+  User,
 } from '@/models/json-placeholder-api';
 import jsonPlaceholderApiService from '@/services/json-placeholder-api/JsonPlaceholderApiService';
 import {
@@ -12,6 +13,7 @@ import {
   setLoading,
   setPostComments,
   setPostList,
+  setViewedUser,
 } from '@/store/features/json-placeholder/jsonPlaceholderSlice';
 import { RootState } from '@/store/store';
 import { WithTotalCount } from '@/models/shared';
@@ -19,6 +21,7 @@ import { WithTotalCount } from '@/models/shared';
 export const enum JsonPlaceholderSagaAction {
   GetAllPosts = 'GetAllPosts',
   GetPostComments = 'GetPostComments',
+  GetUserData = 'GetUserData',
 }
 export const getAllPosts = createAction(
   JsonPlaceholderSagaAction.GetAllPosts,
@@ -32,8 +35,54 @@ export const getPostComments = createAction(
     payload: postId,
   }),
 );
+export const getUserData = createAction(
+  JsonPlaceholderSagaAction.GetUserData,
+  (userId: number) => ({
+    payload: userId,
+  }),
+);
+
+function* fetchUserPosts(userId: number) {
+  try {
+    const userPosts: Post[] = yield call(
+      jsonPlaceholderApiService.getUserPosts,
+      userId,
+    );
+    yield put(setPostList({ data: userPosts, totalCount: userPosts.length }));
+  } catch (error) {
+    yield cancel();
+  }
+}
+
+function* fetchUserData(userId: number) {
+  try {
+    const user: User | undefined = yield call(
+      jsonPlaceholderApiService.getUserData,
+      userId,
+    );
+    yield put(setViewedUser(user));
+  } catch (error) {
+    yield cancel();
+  }
+}
+
+export function* getUserDataWorker(action: ReturnType<typeof getUserData>) {
+  try {
+    yield put(setLoading(true));
+    yield delay(500);
+    yield all([
+      call(fetchUserPosts, action.payload),
+      call(fetchUserData, action.payload),
+    ]);
+  } catch (error) {
+    yield put(setError(String(error)));
+  } finally {
+    yield put(setLoading(false));
+  }
+}
 
 export function* getAllPostsWorker(action: ReturnType<typeof getAllPosts>) {
+  console.log(action.payload);
   try {
     yield put(setPostList({ data: undefined, totalCount: 0 }));
     yield put(setLoading(true));

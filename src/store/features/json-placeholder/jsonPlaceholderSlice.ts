@@ -1,4 +1,4 @@
-import { Post, Comment } from '@/models/json-placeholder-api';
+import { Post, Comment, User } from '@/models/json-placeholder-api';
 import { WithTotalCount } from '@/models/shared';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
@@ -6,6 +6,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 export interface State {
   allPosts: WithTotalCount<Post[] | undefined>;
   commentMap: Record<number, Comment[]>;
+  viewedUser?: User;
   loadingComments: number[];
   loading: boolean;
   error: string;
@@ -14,6 +15,7 @@ export interface State {
 const initialState: State = {
   allPosts: { data: undefined, totalCount: 0 },
   commentMap: {},
+  viewedUser: undefined,
   loadingComments: [],
   loading: false,
   error: '',
@@ -36,6 +38,9 @@ export const jsonPlaceholderSlice = createSlice({
     ) => {
       const { postId, commentList } = action.payload;
       state.commentMap[postId] = commentList;
+    },
+    setViewedUser: (state, action: PayloadAction<User | undefined>) => {
+      state.viewedUser = action.payload;
     },
     setCommentsLoading: (
       state,
@@ -69,6 +74,7 @@ export const {
   setLoading,
   setPostComments,
   setCommentsLoading,
+  setViewedUser,
 } = jsonPlaceholderSlice.actions;
 
 export default jsonPlaceholderSlice.reducer;
