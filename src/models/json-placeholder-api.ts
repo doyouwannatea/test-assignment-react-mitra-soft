@@ -63,6 +63,6 @@ export type PostSortVariant = keyof Pick<Post, 'title' | 'body'>;
 export const postSortVariants: PostSortVariant[] = ['title', 'body'];
 
 export const PostSortVariantsText: Record<PostSortVariant, string> = {
-  body: 'Тело поста',
-  title: 'Заголовок поста',
+  body: 'Сортировать по телу поста',
+  title: 'Сортировать по заголовку поста',
 };
