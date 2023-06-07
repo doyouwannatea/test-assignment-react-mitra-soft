@@ -14,6 +14,7 @@ export default defineConfig({
       outputDir: path.resolve(__dirname, './dist'),
     }),
   ],
+  base: '/test-assignment-react-mitra-soft',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

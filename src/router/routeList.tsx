@@ -1,4 +1,4 @@
-import { RouteObject, generatePath } from 'react-router-dom';
+import { Navigate, RouteObject, generatePath } from 'react-router-dom';
 import App from '@/App';
 import PostListPage from '@/views/PostListPage';
 import AboutMePage from '@/views/AboutMePage';
@@ -9,13 +9,11 @@ import {
 } from '@/models/post-list-page-params';
 
 export const enum RoutePath {
-  Home = '/',
-  PostList = '/:page/:sort/:title?',
+  PostList = '/all-posts/:page/:sort/:title?',
   AboutMe = '/about',
   AboutUser = '/about/:userId',
 }
 
-export const generateHomePath = () => generatePath(RoutePath.Home);
 export const generatePostListPath = ({
   page,
   sort,
@@ -28,7 +26,6 @@ export const generateAboutUserPath = (userId: string | null) =>
 
 export const routeList: RouteObject[] = [
   {
-    path: RoutePath.Home,
     element: <App />,
     children: [
       {
@@ -43,6 +40,10 @@ export const routeList: RouteObject[] = [
       {
         path: RoutePath.AboutUser,
         element: <AboutUserPage />,
+      },
+      {
+        path: '*',
+        element: <Navigate to={generatePostListPath()} />,
       },
     ],
   },
