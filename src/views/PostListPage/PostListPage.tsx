@@ -6,49 +6,24 @@ import {
   getPostComments,
 } from '@/store/features/json-placeholder/sagas';
 import PostList from '@/components/PostList';
-import { useState } from 'react';
-
-// https://dev.to/admantium/react-creating-a-custom-hook-for-pagination-jni
-export function usePagination<T>(list: T[], itemsPerPage: number) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const maxPage = Math.ceil(list.length / itemsPerPage);
-
-  function currentData() {
-    const begin = (currentPage - 1) * itemsPerPage;
-    const end = begin + itemsPerPage;
-    return list.slice(begin, end);
-  }
-
-  function next() {
-    setCurrentPage((currentPage) => Math.min(currentPage + 1, maxPage));
-  }
-
-  function prev() {
-    setCurrentPage((currentPage) => Math.max(currentPage - 1, 1));
-  }
-
-  function jump(page: number) {
-    const pageNumber = Math.max(1, page);
-    setCurrentPage(Math.min(pageNumber, maxPage));
-  }
-
-  return { next, prev, jump, currentData, currentPage, maxPage };
-}
+import {
+  PostSortVariant,
+  PostSortVariantsText,
+  postSortVariants,
+} from '@/models/json-placeholder-api';
+import { usePostListPageParams } from './usePostListPageParams';
+import { usePagination } from '@/hooks/usePagination';
 
 function PostListPage() {
-  useDispatchOnMount(getAllPosts());
+  const PAGINATION_LIMIT = 7;
   const dispatch = useAppDispatch();
+
   const allPosts = useAppSelector(
-    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.allPosts || [],
+    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.allPosts.data || [],
   );
-  const {
-    currentData: getPaginatedPostList,
-    next,
-    prev,
-    jump,
-    currentPage,
-    maxPage,
-  } = usePagination(allPosts, 7);
+  const totalPosts = useAppSelector(
+    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.allPosts.totalCount,
+  );
   const commentMap = useAppSelector(
     ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.commentMap,
   );
@@ -59,13 +34,28 @@ function PostListPage() {
     ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer.loadingComments,
   );
 
+  const { changeParams, params } = usePostListPageParams();
+  useDispatchOnMount(
+    getAllPosts({
+      pagination: { limit: PAGINATION_LIMIT, page: params.page },
+      sort: { order: 'asc', sortBy: params.sort },
+      filter: [{ option: 'title', value: params.title }],
+    }),
+  );
+  const { next, prev, jump, maxPage } = usePagination(
+    params.page,
+    totalPosts,
+    PAGINATION_LIMIT,
+    onPageChange,
+  );
+
   function generatePagination(): React.ReactElement[] {
     return Array.from(new Array(maxPage)).map((_, index) => {
       const page = index + 1;
       return (
         <Pagination.Item
           key={page}
-          active={page === currentPage}
+          active={page === params.page}
           onClick={() => jump(page)}
         >
           {page}
@@ -78,29 +68,60 @@ function PostListPage() {
     dispatch(getPostComments(postId));
   }
 
-  // TODO: поиск по заголовку
-  // TODO: сортировка по заголовку
-  // TODO: пагинация +
+  function onPageChange(page: number) {
+    changeParams({ page });
+  }
 
-  if (isLoading && !allPosts) return <Spinner />;
+  function onTitleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    changeParams({ page: 1, title: event.target.value });
+  }
+
+  function onClearInput() {
+    changeParams({ page: 1, title: '' });
+  }
+
+  function onSortChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    const sort = event.target.value as PostSortVariant;
+    changeParams({ page: 1, sort });
+  }
 
   return (
     <section>
       <InputGroup className='mb-3'>
-        <Form.Control placeholder='Введите заголовок статьи' />
-        <Button variant='outline-secondary'>X</Button>
+        <Form.Control
+          placeholder='Введите заголовок статьи'
+          value={params.title}
+          onInput={onTitleChange}
+        />
+        <Button variant='outline-secondary' onClick={onClearInput}>
+          X
+        </Button>
       </InputGroup>
-      <PostList
-        postList={getPaginatedPostList()}
-        commentMap={commentMap}
-        loadingComments={loadingComments}
-        openPostCommentList={(postId) => openPostCommentList(postId)}
-      />
-      <Pagination>
-        <Pagination.Prev onClick={prev} />
-        {generatePagination()}
-        <Pagination.Next onClick={next} />
-      </Pagination>
+      <Form.Select onChange={onSortChange} value={params.sort}>
+        {postSortVariants.map((sortVariant) => (
+          <option key={sortVariant} value={sortVariant}>
+            {PostSortVariantsText[sortVariant]}
+          </option>
+        ))}
+      </Form.Select>
+
+      {isLoading && allPosts.length === 0 ? (
+        <Spinner />
+      ) : (
+        <>
+          <PostList
+            postList={allPosts}
+            commentMap={commentMap}
+            loadingComments={loadingComments}
+            openPostCommentList={(postId) => openPostCommentList(postId)}
+          />
+          <Pagination>
+            <Pagination.Prev onClick={prev} />
+            {generatePagination()}
+            <Pagination.Next onClick={next} />
+          </Pagination>
+        </>
+      )}
     </section>
   );
 }

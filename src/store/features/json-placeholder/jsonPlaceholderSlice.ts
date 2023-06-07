@@ -1,9 +1,10 @@
 import { Post, Comment } from '@/models/json-placeholder-api';
+import { WithTotalCount } from '@/models/shared';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface State {
-  allPosts?: Post[];
+  allPosts: WithTotalCount<Post[] | undefined>;
   commentMap: Record<number, Comment[]>;
   loadingComments: number[];
   loading: boolean;
@@ -11,7 +12,7 @@ export interface State {
 }
 
 const initialState: State = {
-  allPosts: undefined,
+  allPosts: { data: undefined, totalCount: 0 },
   commentMap: {},
   loadingComments: [],
   loading: false,
@@ -23,7 +24,10 @@ export const jsonPlaceholderSlice = createSlice({
   name: sliceName,
   initialState,
   reducers: {
-    setPostList: (state, action: PayloadAction<Post[]>) => {
+    setPostList: (
+      state,
+      action: PayloadAction<WithTotalCount<Post[] | undefined>>,
+    ) => {
       state.allPosts = action.payload;
     },
     setPostComments: (

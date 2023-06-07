@@ -12,3 +12,27 @@ export interface Post {
   title: string;
   body: string;
 }
+
+export interface JsonPlaceholderApiOptions {
+  pagination?: {
+    page: number;
+    limit: number;
+  };
+  sort?: {
+    sortBy: string;
+    order: 'asc' | 'desc';
+  };
+  filter?: {
+    option: string;
+    value: string;
+  }[];
+}
+
+export type PostSortVariant = keyof Pick<Post, 'title' | 'body'>;
+
+export const postSortVariants: PostSortVariant[] = ['title', 'body'];
+
+export const PostSortVariantsText: Record<PostSortVariant, string> = {
+  body: 'Тело поста',
+  title: 'Заголовок поста',
+};
