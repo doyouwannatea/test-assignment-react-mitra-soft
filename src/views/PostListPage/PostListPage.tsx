@@ -1,4 +1,5 @@
-import { Button, Form, InputGroup, Pagination, Spinner } from 'react-bootstrap';
+import { Button, Form, InputGroup, Spinner } from 'react-bootstrap';
+import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useDispatchOnMount } from '@/hooks/useDispatchOnMount';
 import {
@@ -12,12 +13,24 @@ import {
   postSortVariants,
 } from '@/models/json-placeholder-api';
 import { usePostListPageParams } from './usePostListPageParams';
-import { usePagination } from '@/hooks/usePagination';
 import ErrorStub from '@/components/ErrorStub';
+import useMediaQuery from '@/hooks/useMediaQuery';
+import BasePagination from '@/components/BasePagination';
 
 function PostListPage() {
-  const PAGINATION_LIMIT = 7;
+  const ITEMS_PER_PAGE = 7;
+  const DESKTOP_PAGINATION_NEIGHBOURS = 10;
+  const MOBILE_PAGINATION_NEIGHBOURS = 1;
+
   const dispatch = useAppDispatch();
+  const isSmallDevice = useMediaQuery('(max-width: 768px)');
+  const pageNeighbours = useMemo(
+    () =>
+      isSmallDevice
+        ? MOBILE_PAGINATION_NEIGHBOURS
+        : DESKTOP_PAGINATION_NEIGHBOURS,
+    [isSmallDevice],
+  );
 
   const {
     commentMap,
@@ -30,32 +43,11 @@ function PostListPage() {
   const { changeParams, params } = usePostListPageParams();
   useDispatchOnMount(
     getAllPosts({
-      pagination: { limit: PAGINATION_LIMIT, page: params.page },
+      pagination: { limit: ITEMS_PER_PAGE, page: params.page },
       sort: { order: 'asc', sortBy: params.sort },
       filter: [{ option: 'title', value: params.title }],
     }),
   );
-  const { next, prev, jump, maxPage } = usePagination(
-    params.page,
-    totalPosts,
-    PAGINATION_LIMIT,
-    onPageChange,
-  );
-
-  function generatePagination(): React.ReactElement[] {
-    return Array.from(new Array(maxPage)).map((_, index) => {
-      const page = index + 1;
-      return (
-        <Pagination.Item
-          key={page}
-          active={page === params.page}
-          onClick={() => jump(page)}
-        >
-          {page}
-        </Pagination.Item>
-      );
-    });
-  }
 
   function openPostCommentList(postId: number) {
     dispatch(getPostComments(postId));
@@ -112,11 +104,13 @@ function PostListPage() {
             loadingComments={loadingComments}
             openPostCommentList={(postId) => openPostCommentList(postId)}
           />
-          <Pagination>
-            <Pagination.Prev onClick={prev} />
-            {generatePagination()}
-            <Pagination.Next onClick={next} />
-          </Pagination>
+          <BasePagination
+            currentPage={params.page}
+            itemsPerPage={ITEMS_PER_PAGE}
+            maxItems={totalPosts}
+            pageNeighbours={pageNeighbours}
+            onPageChange={onPageChange}
+          />
         </>
       )}
     </section>
