@@ -5,6 +5,8 @@ import { Stack } from 'react-bootstrap';
 interface Props {
   postList: Post[];
   commentMap: Record<number, Comment[]>;
+  markList: number[];
+  onMark: (isMarked: boolean, postId: number) => void;
   loadingComments: number[];
   openPostCommentList: (postId: number) => void;
 }
@@ -14,6 +16,8 @@ function PostList({
   commentMap,
   loadingComments,
   openPostCommentList,
+  markList,
+  onMark,
 }: Props) {
   return (
     <Stack as='ul' gap={1} className='list-inline'>
@@ -26,6 +30,8 @@ function PostList({
             isLoadingComments={
               loadingComments.includes(post.id) && !commentMap[post.id]
             }
+            marked={markList.includes(post.id)}
+            onMark={(isMarked) => onMark(isMarked, post.id)}
           />
         </li>
       ))}

@@ -1,12 +1,8 @@
 import { Button, Form, InputGroup, Spinner } from 'react-bootstrap';
 import { useMemo } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/store';
+import { useAppSelector } from '@/store/store';
 import { useDispatchOnMount } from '@/hooks/useDispatchOnMount';
-import {
-  getAllPosts,
-  getPostComments,
-} from '@/store/features/json-placeholder/sagas';
-import PostList from '@/components/PostList';
+import { getAllPosts } from '@/store/features/json-placeholder/sagas/posts';
 import {
   PostSortVariant,
   PostSortVariantsText,
@@ -16,13 +12,13 @@ import { usePostListPageParams } from './usePostListPageParams';
 import ErrorStub from '@/components/ErrorStub';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import BasePagination from '@/components/BasePagination';
+import UserPostList from '@/components/UserPostList';
 
 function PostListPage() {
   const ITEMS_PER_PAGE = 7;
   const DESKTOP_PAGINATION_NEIGHBOURS = 10;
   const MOBILE_PAGINATION_NEIGHBOURS = 1;
 
-  const dispatch = useAppDispatch();
   const isSmallDevice = useMediaQuery('(max-width: 768px)');
   const pageNeighbours = useMemo(
     () =>
@@ -33,8 +29,6 @@ function PostListPage() {
   );
 
   const {
-    commentMap,
-    loadingComments,
     allPosts: { data: allPosts, totalCount: totalPosts },
     loading,
     error,
@@ -48,10 +42,6 @@ function PostListPage() {
       filter: [{ option: 'title', value: params.title }],
     }),
   );
-
-  function openPostCommentList(postId: number) {
-    dispatch(getPostComments(postId));
-  }
 
   function onPageChange(page: number) {
     changeParams({ page });
@@ -98,12 +88,7 @@ function PostListPage() {
         'Посты не найдены'
       ) : (
         <>
-          <PostList
-            postList={allPosts || []}
-            commentMap={commentMap}
-            loadingComments={loadingComments}
-            openPostCommentList={(postId) => openPostCommentList(postId)}
-          />
+          <UserPostList />
           <BasePagination
             currentPage={params.page}
             itemsPerPage={ITEMS_PER_PAGE}

@@ -5,6 +5,8 @@ import { classNamesFunc } from 'classnames-generics';
 import { Button, Card, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import CommentList from '../CommentList';
+import { AiFillLike, AiOutlineLike } from 'react-icons/ai';
+import { noop } from '@/utils/shared';
 
 import styles from './BasePost.module.scss';
 
@@ -14,6 +16,8 @@ interface Props {
   post: Post;
   commentList: Comment[];
   isLoadingComments?: boolean;
+  marked?: boolean;
+  onMark?: (isMarked: boolean) => void;
   onOpenCommentList?: () => void;
   onCloseCommentList?: () => void;
 }
@@ -21,8 +25,10 @@ interface Props {
 function BasePost({
   post,
   commentList,
-  onOpenCommentList,
-  onCloseCommentList,
+  marked = false,
+  onMark = noop,
+  onOpenCommentList = noop,
+  onCloseCommentList = noop,
   isLoadingComments = false,
 }: Props) {
   const [commentListOpened, setСommentListOpened] = useState(false);
@@ -30,12 +36,12 @@ function BasePost({
   function openCommentList() {
     if (isLoadingComments) return;
     setСommentListOpened(true);
-    if (onOpenCommentList) onOpenCommentList();
+    onOpenCommentList();
   }
 
   function closeCommentList() {
     setСommentListOpened(false);
-    if (onCloseCommentList) onCloseCommentList();
+    onCloseCommentList();
   }
 
   return (
@@ -61,11 +67,14 @@ function BasePost({
             'скрыть комментарии'
           ) : (
             'окрыть комментарии'
-          )}{' '}
+          )}
         </Button>
         {!isLoadingComments && commentListOpened && commentList && (
           <CommentList commentList={commentList} />
         )}
+        <Button variant='link' onClick={() => onMark(!marked)}>
+          {marked ? <AiFillLike /> : <AiOutlineLike />}
+        </Button>
       </Card.Body>
     </Card>
   );
