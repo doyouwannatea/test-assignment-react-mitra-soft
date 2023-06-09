@@ -1,4 +1,9 @@
-import { Stack } from 'react-bootstrap';
+import ErrorStub from '@/components/ErrorStub';
+import UserPostList from '@/components/UserPostList';
+import { useDispatchOnMount } from '@/hooks/useDispatchOnMount';
+import { getAllPosts } from '@/store/features/json-placeholder/sagas/posts';
+import { useAppSelector } from '@/store/store';
+import { Spinner, Stack } from 'react-bootstrap';
 
 function AboutMePage() {
   const skillList = [
@@ -17,6 +22,19 @@ function AboutMePage() {
     'pinia',
     'REST_API',
   ];
+
+  const { likedPosts, loading, error } = useAppSelector(
+    ({ jsonPlaceholderReducer }) => jsonPlaceholderReducer,
+  );
+
+  useDispatchOnMount(
+    getAllPosts({
+      filter: likedPosts.map((postId) => ({
+        option: 'id',
+        value: String(postId),
+      })),
+    }),
+  );
 
   return (
     <section>
@@ -107,6 +125,19 @@ function AboutMePage() {
             <li key={skill}>#{skill}</li>
           ))}
         </Stack>
+      </section>
+
+      <section>
+        <h4>Лайкнутые посты</h4>
+        {loading ? (
+          <Spinner />
+        ) : error ? (
+          <ErrorStub error={error} />
+        ) : likedPosts.length === 0 ? (
+          'Вы не лайкнули ни одного поста 😢'
+        ) : (
+          <UserPostList />
+        )}
       </section>
     </section>
   );
