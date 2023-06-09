@@ -1,11 +1,13 @@
 import { Post, Comment, User } from '@/models/json-placeholder-api';
 import { WithTotalCount } from '@/models/shared';
+import { findAndDelete } from '@/utils/shared';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface State {
   allPosts: WithTotalCount<Post[] | undefined>;
   commentMap: Record<number, Comment[]>;
+  likedPosts: number[];
   viewedUser?: User;
   loadingComments: number[];
   loading: boolean;
@@ -15,15 +17,15 @@ export interface State {
 const initialState: State = {
   allPosts: { data: undefined, totalCount: 0 },
   commentMap: {},
+  likedPosts: [],
   viewedUser: undefined,
   loadingComments: [],
   loading: false,
   error: '',
 };
 
-const sliceName = 'json-placeholder';
 export const jsonPlaceholderSlice = createSlice({
-  name: sliceName,
+  name: 'json-placeholder',
   initialState,
   reducers: {
     setPostList: (
@@ -53,11 +55,22 @@ export const jsonPlaceholderSlice = createSlice({
         return;
       }
       // false: убираем загрузку
-      const index = state.loadingComments.findIndex((post) => post === postId);
-      state.loadingComments = [
-        ...state.loadingComments.slice(0, index),
-        ...state.loadingComments.slice(index + 1),
-      ];
+      state.loadingComments = findAndDelete(
+        state.loadingComments,
+        (post) => post === postId,
+      );
+    },
+    likePost: (state, action: PayloadAction<number>) => {
+      state.likedPosts.push(action.payload);
+    },
+    dislikePost: (state, action: PayloadAction<number>) => {
+      state.likedPosts = findAndDelete(
+        state.likedPosts,
+        (post) => post === action.payload,
+      );
+    },
+    setLikedPosts: (state, action: PayloadAction<number[]>) => {
+      state.likedPosts = action.payload;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -75,6 +88,9 @@ export const {
   setPostComments,
   setCommentsLoading,
   setViewedUser,
+  dislikePost,
+  likePost,
+  setLikedPosts,
 } = jsonPlaceholderSlice.actions;
 
 export default jsonPlaceholderSlice.reducer;

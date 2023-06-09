@@ -43,17 +43,17 @@ export interface User {
   company: Company;
 }
 
-export interface JsonPlaceholderApiOptions {
+export interface JsonPlaceholderApiOptions<T = never> {
   pagination?: {
     page: number;
     limit: number;
   };
   sort?: {
-    sortBy: string;
+    sortBy: Extract<keyof T, string>;
     order: 'asc' | 'desc';
   };
   filter?: {
-    option: string;
+    option: Extract<keyof T, string>;
     value: string;
   }[];
 }

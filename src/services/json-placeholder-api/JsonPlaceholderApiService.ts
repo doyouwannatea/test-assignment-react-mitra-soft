@@ -8,9 +8,11 @@ import { httpClient } from '../httpClient';
 import { JsonPlaceholderApiSearchParams } from './JsonPlaceholderApiSearchParams';
 import { WithTotalCount } from '@/models/shared';
 
+const LIKED_POSTS_KEY = 'LIKED_POSTS';
+
 export class JsonPlaceholderApiService {
   async getAllPosts(
-    options: JsonPlaceholderApiOptions = {},
+    options: JsonPlaceholderApiOptions<Post> = {},
   ): Promise<WithTotalCount<Post[]>> {
     const searchParams = new JsonPlaceholderApiSearchParams(options);
     const responce = await httpClient.get<Post[]>(`posts?${searchParams}`);
@@ -37,6 +39,16 @@ export class JsonPlaceholderApiService {
       `comments?postId=${postId}`,
     );
     return responce.data;
+  }
+
+  async setLikedPosts(likedPosts: number[]): Promise<void> {
+    localStorage.setItem(LIKED_POSTS_KEY, JSON.stringify(likedPosts));
+  }
+
+  async getLikedPosts(): Promise<number[]> {
+    const string = localStorage.getItem(LIKED_POSTS_KEY);
+    if (!string) return [];
+    return JSON.parse(string);
   }
 }
 

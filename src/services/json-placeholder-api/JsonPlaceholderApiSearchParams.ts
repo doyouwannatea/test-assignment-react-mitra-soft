@@ -1,9 +1,9 @@
 import { JsonPlaceholderApiOptions } from '@/models/json-placeholder-api';
 
-export class JsonPlaceholderApiSearchParams {
+export class JsonPlaceholderApiSearchParams<T> {
   private searchParams = new URLSearchParams();
 
-  constructor(options: JsonPlaceholderApiOptions) {
+  constructor(options: JsonPlaceholderApiOptions<T>) {
     const { pagination, filter, sort } = options;
 
     if (pagination) {

@@ -1,18 +1,20 @@
-import { takeEvery, takeLatest } from 'redux-saga/effects';
+import { spawn } from 'redux-saga/effects';
 import {
-  JsonPlaceholderSagaAction,
-  getAllPostsWorker,
-  getPostCommentsWorker,
-  getUserDataWorker,
-} from '../features/json-placeholder/sagas';
+  getAllPostsWatcher,
+  getPostCommentsWatcher,
+  getUserDataWatcher,
+  saveLikedPostsWatcher,
+} from '../features/json-placeholder/sagas/watchers';
 
 function* rootSaga() {
-  yield takeLatest(JsonPlaceholderSagaAction.GetAllPosts, getAllPostsWorker);
-  yield takeLatest(JsonPlaceholderSagaAction.GetUserData, getUserDataWorker);
-  yield takeEvery(
-    JsonPlaceholderSagaAction.GetPostComments,
-    getPostCommentsWorker,
-  );
+  try {
+    yield spawn(getAllPostsWatcher);
+    yield spawn(getPostCommentsWatcher);
+    yield spawn(getUserDataWatcher);
+    yield spawn(saveLikedPostsWatcher);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 export default rootSaga;
