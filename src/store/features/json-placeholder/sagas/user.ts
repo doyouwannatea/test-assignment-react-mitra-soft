@@ -8,7 +8,6 @@ import {
   setPostList,
   setViewedUser,
 } from '@/store/features/json-placeholder/jsonPlaceholderSlice';
-import { fetchLikedPosts } from './posts';
 
 export const enum UserActionType {
   GetUserData = 'GetUserData',
